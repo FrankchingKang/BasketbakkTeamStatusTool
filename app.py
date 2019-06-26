@@ -1,5 +1,6 @@
 import constants
 import os
+import copy
 
 def clear_screen():
   os.system("cls" if os.name == "nt" else "clear")
@@ -95,9 +96,9 @@ def average_height(Players):
   return TotalHeight / len(Players)
 
 def show_players_info(Players):
-  print("Total players: {}".format(len(Players)))
-  print("Experience Players: {}".format(total_experienced_players(Players)))
-  print("Inexperience Players: {}".format(total_inexperienced_players(Players)))
+  print("Total players: {}".format(len(Players)), end = "; ")
+  print("Experience Players: {}".format(total_experienced_players(Players)), end = "; ")
+  print("Inexperience Players: {}".format(total_inexperienced_players(Players)), end = "; ")
   print("Average height of the team: {}".format(average_height(Players)))
   print("\nPlayers on Team:")
   PlayerName = [player['name'] for player in Players]
@@ -110,8 +111,13 @@ def show_players_info(Players):
 if __name__ == "__main__":
   
   # get date from constants.py
-  Teams = [team for team in constants.TEAMS]
-  Players = [player for player in constants.PLAYERS]
+  # if using "=" will automatically modify the original data 
+  #Teams = [team for team in constants.TEAMS]         
+  #Players = [player for player in constants.PLAYERS]
+  
+  #if using deepcopy will not change the original data
+  Teams = copy.deepcopy(constants.TEAMS)
+  Players = copy.deepcopy(constants.PLAYERS)
   
   # conver height of Players to int 
   Players = conver_height(Players)
@@ -122,6 +128,8 @@ if __name__ == "__main__":
   # conver guardians string to list and delete "and"
   Players = conver_guardians(Players)
   
+  
+  
   # assign player to three teams 
   league = {team: player for team, player in zip(Teams, assign_players_to_three_teams(Players))}
   
@@ -130,22 +138,50 @@ if __name__ == "__main__":
     print("Here are your choices:")
     print("1) Display Team Stats")
     print("2) Quit")
-    action = input("Enter an option > ")
+    try:
+      action = input("Enter an option > ")
+    except KeyboardInterrupt:
+      action = input("\ndo you really want to exit? Y/N >")
+      if action.upper() == "Y":
+        os._exit(0)
+        
+      
     if action.upper == "QUIT" or action.lower() == "quit" or action == "2":
       break
     elif action == "1":
-      print("1) Panthers")
-      print("2) Bandits")
-      print("3) Warriors")
-      action = int(input("Enter an option > "))
-      if 1 <= action and action <=3:
+      while True:
         clear_screen()
-        TeamSelected = Teams[action-1]
-        PlayersOfTeam = league[TeamSelected]
-        print("\nTeam: {} status:".format(TeamSelected))
-        print("-"*50)
-        show_players_info(PlayersOfTeam)
-        print("-"*50)
+        print("1) Panthers")
+        print("2) Bandits")
+        print("3) Warriors")
+        try:
+          action = input("Enter an option > ")
+        except KeyboardInterrupt:
+          action = input("\ndo you really want to exit? Y/N >")
+          if action.upper() == "Y":
+            os._exit(0)
+        
+        if action == "1" or action == "2" or action == "3":
+          action = int(action)
+          clear_screen()
+          TeamSelected = Teams[action-1]
+          PlayersOfTeam = league[TeamSelected]
+          print("\nTeam: {} status:".format(TeamSelected))
+          print("-"*50)
+          show_players_info(PlayersOfTeam)
+          print("-"*50)
+          break
+        else:
+          print("Please enter 1 to 3 to select your action. Thanks")
+          try:
+            input("Press enter to continue > ")
+          except KeyboardInterrupt:
+            action = input("\ndo you really want to exit? Y/N >")
+          if action.upper() == "Y":
+            os._exit(0)  
+            
+          continue
+          
       else:
         
         continue
@@ -154,7 +190,10 @@ if __name__ == "__main__":
       print("Please enter 1 or 2 to select your action. Thanks")
       
       
-    
-    input("Press enter to continue > ")
-    
+    try:
+      input("Press enter to continue > ")
+    except KeyboardInterrupt:
+      action = input("\ndo you really want to exit? Y/N >")
+      if action.upper() == "Y":
+        os._exit(0)
     
